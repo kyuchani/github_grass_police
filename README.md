@@ -6,10 +6,10 @@
 ![Project Status](https://img.shields.io/badge/Status-Active-brightgreen) ![Node Version](https://img.shields.io/badge/Node.js-v20-339933) ![License](https://img.shields.io/badge/License-MIT-blue)
 
 ## 📸 프로젝트 미리보기
-*(여기에 웹사이트 화면 캡처나, 디스코드 알림 온 화면을 캡처해서 이미지를 넣으세요. 이미지가 있어야 눈길을 끕니다!)*
-> ![서비스 화면](<img width="1919" height="1030" alt="image" src="https://github.com/user-attachments/assets/1761e7b4-8b00-434f-a146-73f192355384" />
+
+> ![서비스 화면](</public/서비스 화면>
 )
-> ![디스코드 알림](<img width="399" height="180" alt="image" src="https://github.com/user-attachments/assets/3d5bd159-37fb-4065-87d9-b3df1c06e36e" />
+> ![디스코드 알림](</public/디스코드>
 )
 
 ## 💡 프로젝트 소개
