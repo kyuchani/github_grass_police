@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌱</text></svg>">
+    <title> 잔디 보안관</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        /* ... (이전과 동일한 스타일 코드) ... */
+        body { 
+            font-family: 'Noto Sans KR', sans-serif; 
+            background-color: #f3f4f6; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            margin: 0; 
+        }
+        .container { 
+            background: white; 
+            padding: 40px; 
+            border-radius: 20px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+            width: 100%; 
+            max-width: 480px; 
+        }
+        h1 { 
+            text-align: center; 
+            color: #166534; 
+            margin: 0 0 10px 0; 
+            font-size: 28px;
+        }
+        .subtitle { 
+            text-align: center; 
+            color: #6b7280; 
+            font-size: 14px; 
+            margin-bottom: 30px; 
+        }
+        label {
+            font-size: 13px;
+            font-weight: bold;
+            color: #374151;
+            margin-bottom: 5px;
+            display: block;
+            margin-top: 15px;
+        }
+        input, select { 
+            width: 100%; 
+            padding: 14px; 
+            margin-top: 5px; 
+            border-radius: 10px; 
+            border: 1px solid #e5e7eb; 
+            box-sizing: border-box; 
+            font-size: 15px;
+            transition: 0.2s;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #22c55e;
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+        }
+        button { 
+            width: 100%; 
+            padding: 16px; 
+            margin-top: 25px; 
+            border-radius: 12px; 
+            border: none; 
+            font-weight: bold; 
+            cursor: pointer; 
+            font-size: 16px; 
+            transition: 0.2s; 
+        }
+        .submit-btn { 
+            background: #22c55e; 
+            color: white; 
+            box-shadow: 0 4px 6px rgba(34, 197, 94, 0.2);
+        }
+        .submit-btn:hover { background: #16a34a; transform: translateY(-2px); }
+        
+        .delete-section {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px dashed #e5e7eb;
+            text-align: center;
+        }
+        .delete-title {
+            color: #ef4444;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .delete-btn { 
+            background: #fee2e2; 
+            color: #ef4444; 
+            margin-top: 10px;
+        }
+        .delete-btn:hover { 
+            background: #fecaca; 
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌱 잔디 보안관</h1>
+        <p class="subtitle">1일 1커밋 실패 시 디스코드로 검거합니다.</p>
+        
+        <form id="regForm">
+            <label>이름 (별명)</label>
+            <input type="text" id="name" placeholder="예: 홍길동" required>
+            
+            <label>GitHub 아이디</label>
+            <input type="text" id="github" placeholder="예: github ID"  required>
+            
+            <label>디스코드 웹훅 URL</label>
+            <input type="text" id="webhook" placeholder="https://discord.com/api/webhooks/..." required>
+            
+            <label>감시 시작 시간 (매일 이 시간 이후 체크)</label>
+            <select id="time">
+                <option value="9">아침 9시</option>
+                <option value="12">오후 12시</option>
+                <option value="18">오후 6시</option>
+                <option value="20">오후 8시</option>
+                <option value="21">오후 9시</option>
+                <option value="22" selected>오후 10시</option>
+                <option value="23">오후 11시</option>
+            </select>
+            
+            <button type="submit" class="submit-btn">👮 감시 시작하기</button>
+        </form>
+
+        <div class="delete-section">
+            <div class="delete-title">더 이상 감시받기 싫다면?</div>
+            <input type="text" id="delGithub" placeholder="해제할 GitHub 아이디 입력">
+            <button onclick="deleteUser()" class="delete-btn">등록 해제하기 (자유의 몸)</button>
+        </div>
+    </div>
+
+    <script>
+        // [등록하기] 기능
+        document.getElementById('regForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            Swal.fire({
+                title: '등록 중...',
+                text: '잠시만 기다려주세요.',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
+            });
+
+            const data = {
+                name: document.getElementById('name').value,
+                github_id: document.getElementById('github').value,
+                webhook_url: document.getElementById('webhook').value,
+                alert_hour: document.getElementById('time').value
+            };
+
+            const res = await fetch('/api/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            const result = await res.json();
+
+            Swal.fire({
+                icon: result.success ? 'success' : 'error',
+                title: result.success ? '등록 완료!' : '등록 실패',
+                text: result.message,
+                confirmButtonColor: '#22c55e'
+            }).then(() => {
+                if(result.success) location.reload();
+            });
+        });
+
+        // [삭제하기] 기능
+        function deleteUser() {
+            const id = document.getElementById('delGithub').value;
+            if(!id) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: '아이디 입력 필요',
+                    text: '삭제할 깃허브 아이디를 입력해주세요.',
+                    confirmButtonColor: '#f59e0b'
+                });
+                return;
+            }
+
+            Swal.fire({
+                title: '정말 포기하시겠습니까?',
+                text: "지금 해제하면 잔디 관리가 중단됩니다!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: '네, 포기할래요',
+                cancelButtonText: '아니요, 더 할래요'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    const res = await fetch('/api/delete', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ github_id: id })
+                    });
+                    const apiResult = await res.json();
+                    Swal.fire({
+                        icon: apiResult.success ? 'success' : 'error',
+                        title: apiResult.success ? '해제 완료' : '오류 발생',
+                        text: apiResult.message
+                    });
+                }
+            });
+        }
+    </script>
+</body>
+</html>
